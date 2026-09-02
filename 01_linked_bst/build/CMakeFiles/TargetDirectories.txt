@@ -1,0 +1,3 @@
+/home/ar/Dev/experiments/c/2sem_c_retake/01_linked_bst/build/CMakeFiles/program.dir
+/home/ar/Dev/experiments/c/2sem_c_retake/01_linked_bst/build/CMakeFiles/edit_cache.dir
+/home/ar/Dev/experiments/c/2sem_c_retake/01_linked_bst/build/CMakeFiles/rebuild_cache.dir
