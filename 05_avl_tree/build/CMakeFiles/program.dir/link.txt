@@ -1,1 +1,0 @@
-/usr/bin/cc CMakeFiles/program.dir/main.c.o CMakeFiles/program.dir/insert.c.o CMakeFiles/program.dir/delete.c.o CMakeFiles/program.dir/print_tree.c.o CMakeFiles/program.dir/free.c.o CMakeFiles/program.dir/auxiliary_func.c.o CMakeFiles/program.dir/rotations.c.o -o program 

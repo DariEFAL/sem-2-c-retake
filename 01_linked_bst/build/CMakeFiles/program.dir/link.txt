@@ -1,1 +1,0 @@
-/usr/bin/cc CMakeFiles/program.dir/main.c.o CMakeFiles/program.dir/insert.c.o CMakeFiles/program.dir/delete.c.o CMakeFiles/program.dir/search.c.o CMakeFiles/program.dir/print_tree.c.o CMakeFiles/program.dir/free.c.o CMakeFiles/program.dir/max_depth.c.o CMakeFiles/program.dir/max_bfs.c.o -o program 
