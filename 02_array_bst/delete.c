@@ -1,0 +1,7 @@
+#include "struct.h"
+
+int delete() {
+    //2*i + 1
+    //2*i + 2
+    //(i-1)/2
+}
