@@ -3,50 +3,49 @@
 int delete_node(AVLNode **root, int key) {
     if (root == NULL || *root == NULL) return -1;
 
-    int exit = -3;
-    if (key == (*root)->key) {
+    int status = 0;
+
+    /* 1. Поиск удаляемого узла */
+    if (key < (*root)->key) {
+        status = delete_node(&((*root)->left), key);
+    } else if (key > (*root)->key) {
+        status = delete_node(&((*root)->right), key);
+    } else {
+        /* Узел найден! */
+        AVLNode *node_to_free = *root;
+
         if ((*root)->left == NULL && (*root)->right == NULL) {
-            free(*root);
+            /* Случай 1: Нет детей */
             *root = NULL;
-            return 0;
-        }
-        else if ((*root)->left == NULL) {
-            AVLNode *temp = (*root)->right;
-            free(*root);
-            *root = temp;
-            return 0;
-        }
-        else if ((*root)->right == NULL) {
-            AVLNode *temp = (*root)->left;
-            free(*root);
-            *root = temp;
-            return 0;
-        }
+            free(node_to_free);
+        } else if ((*root)->left == NULL) {
+            /* Случай 2: Только правый ребёнок */
+            *root = (*root)->right;
+            free(node_to_free);
+        } else if ((*root)->right == NULL) {
+            /* Случай 2': Только левый ребёнок */
+            *root = (*root)->left;
+            free(node_to_free);
+        } else {
+            /* Случай 3: Оба ребёнка присутствуют */
+            AVLNode *min_right = (*root)->right;
+            while (min_right->left != NULL) {
+                min_right = min_right->left;
+            }
+            
+            /* Копируем данные преемника */
+            (*root)->key = min_right->key;
+            (*root)->value = min_right->value;
 
-        AVLNode *min_right = (*root)->right;
-
-        while (min_right->left != NULL) {
-            min_right = min_right->left;
+            /* Удаляем преемника из правого поддерева */
+            status = delete_node(&((*root)->right), min_right->key);
         }
-        
-        (*root)->key = min_right->key;
-        (*root)->value = min_right->value;
-
-        exit = delete_node(&((*root)->right), min_right->key);
-    }
-    else {
-        exit = delete_node((key < (*root)->key 
-                            ? &((*root)->left) 
-                            : &((*root)->right)), key);
     }
 
-    update_height(*root);
-    int bf = balance_factor(*root);
+    /* 2. Балансировка оставшегося поддерева */
+    if (*root != NULL) {
+        *root = balance(*root);
+    }
 
-    if (bf < -1 && balance_factor((*root)->right) <= 0) *root = rotate_left(*root);
-    else if (bf > 1 && balance_factor((*root)->left) >= 0) *root = rotate_right(*root);
-    else if (bf > 1 && balance_factor((*root)->left) < 0) *root = rotate_left_right(*root);
-    else if (bf < -1 && balance_factor((*root)->right) > 0) *root = rotate_right_left(*root);
-
-    return exit;
+    return status;
 }

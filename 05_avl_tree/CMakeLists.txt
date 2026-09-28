@@ -9,6 +9,6 @@ add_executable(program
         delete.c
         print_tree.c 
         free.c
-        auxiliary_func.c 
-        rotations.c
+        auxiliary_func.c
+        check.c
 )

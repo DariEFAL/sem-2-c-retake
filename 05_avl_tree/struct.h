@@ -12,23 +12,13 @@ typedef struct AVLNode {
     struct AVLNode *right;
 } AVLNode;
 
-//подключение функций
-//доп функции
 int height(AVLNode *node);
-int balance_factor(AVLNode *node);
-void update_height(AVLNode *node);
-AVLNode *create_avl_node(int key, int value);
-
-//повороты
-AVLNode *rotate_left(AVLNode *y);
-AVLNode *rotate_right(AVLNode *y);
-AVLNode *rotate_left_right(AVLNode *x);
-AVLNode *rotate_right_left(AVLNode *x);
+AVLNode *balance(AVLNode *node);
 
 int insert_avl(AVLNode **root, int key, int value);
 int delete_node(AVLNode **root, int key);
-void print_node(struct AVLNode *treetop, int deep);
-void free_tree(struct AVLNode *root);
-
+void print_node(AVLNode *treetop, int deep);
+void free_tree(AVLNode *root);
+int is_valid_avl(AVLNode *root);
 
 #endif

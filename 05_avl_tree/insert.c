@@ -1,32 +1,36 @@
 #include "struct.h"
 
-//--вставка----------------------------------
+AVLNode *create_avl_node(int key, int value) {
+    AVLNode *new_node = (AVLNode*)malloc(sizeof(AVLNode));
+    if (new_node == NULL) return NULL;
+    new_node->key = key;
+    new_node->value = value;
+    new_node->height = 1;
+    new_node->left = NULL;
+    new_node->right = NULL;
+    return new_node;
+}
+
 int insert_avl(AVLNode **root, int key, int value) {
     if (root == NULL) return -1;
 
+    /* 1. Стандартная вставка в BST */
     if (*root == NULL) {
-        AVLNode *new = create_avl_node(key, value);
-        if (new == NULL) return -2;
-        *root = new;
+        AVLNode *new_node = create_avl_node(key, value);
+        if (new_node == NULL) return -2;
+        *root = new_node;
         return 0;
     } 
-    else if ((*root)->key == key) {
-        (*root)->value = value;
+    
+    if (key == (*root)->key) {
+        (*root)->value = value; /* Обновление значения при совпадении ключа */
         return 0;
     }
 
-    int exit = insert_avl((
-                key < (*root)->key 
-                ? &((*root)->left) 
-                : &((*root)->right)), key, value);
+    int status = insert_avl((key < (*root)->key ? &((*root)->left) : &((*root)->right)), key, value);
     
-    update_height(*root);
-    int bf = balance_factor(*root);
-    
-    if (bf < -1 && balance_factor((*root)->right) <= 0) *root = rotate_left(*root);
-    else if (bf > 1 && balance_factor((*root)->left) >= 0) *root = rotate_right(*root);
-    else if (bf > 1 && balance_factor((*root)->left) < 0) *root = rotate_left_right(*root);
-    else if (bf < -1 && balance_factor((*root)->right) > 0) *root = rotate_right_left(*root);
+    /* 2. Автоматическая балансировка на обратном пути рекурсии */
+    *root = balance(*root);
 
-    return exit;
+    return status;
 }

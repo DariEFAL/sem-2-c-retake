@@ -22,7 +22,6 @@ struct Queue {
 };
 
 //подключение функций
-int create_node(struct Node **new, int value);
 int insert_node(struct Node **treetop, int value);
 int delete_node(struct Node **treetop, int value);
 void print_node(struct Node *treetop, int deep);

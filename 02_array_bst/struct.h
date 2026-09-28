@@ -5,13 +5,11 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#define MAX_SIZE 100
+#define MAX_SIZE 200  /* Увеличим размер, так как дерево на массиве может быть разреженным */
 
-//реализация бинарного дерева на массиве
-//два масива: массив данных и массив флагов, где будет обозначатся пустой ли узел
 typedef struct Node {
     int value;
-    int occupaied; //true-yes
+    bool occupaied;   /* Перевели в bool для экономии и чистоты кода */
 } Node;
 
 typedef struct BinaryTree {
@@ -19,9 +17,14 @@ typedef struct BinaryTree {
     int size;
 } BinaryTree;
 
+/* Основной интерфейс */
 int init(BinaryTree *tree);
 int is_empty(BinaryTree *tree, int index);
-
 int insert(BinaryTree *tree, int value);
+int delete_value(BinaryTree *tree, int value);
+
+/* Вспомогательные функции обхода и визуализации */
+void print_tree_structure(BinaryTree *tree, int index, int depth);
+void inorder_traversal(BinaryTree *tree, int index);
 
 #endif

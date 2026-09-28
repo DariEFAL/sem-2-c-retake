@@ -4,30 +4,33 @@ int main() {
     BinaryTree tree; 
     init(&tree);
 
-    insert(&tree, 28); //i=0
-    insert(&tree, 51); //i=2
-    insert(&tree, 35); //i=5
-    insert(&tree, 10); //i=1
-    insert(&tree, 6); //i=3
-    insert(&tree, 8); //i=8
+    printf("=== Вставка элементов ===\n");
+    insert(&tree, 28); 
+    insert(&tree, 51); 
+    insert(&tree, 35); 
+    insert(&tree, 10); 
+    insert(&tree, 6);  
+    insert(&tree, 8);  
+    insert(&tree, 42); 
 
-    for (int i=0;i<2*(tree.size);i++) {
-        if (is_empty(&tree, i)) printf("empty ");
-        else printf("%d ", tree.data[i].value);
-    }
-    printf("size: %d\n", tree.size);
+    printf("\nСтруктура дерева после вставки:\n");
+    print_tree_structure(&tree, 0, 0);
 
-    insert(&tree, 42); //i=12
-    insert(&tree, 48); //i=26
-    insert(&tree, 15); //i=4
-    insert(&tree, 2); //i=7
-    insert(&tree, 40); //i=25
+    printf("\nОтсортированный вывод (In-order traversal): ");
+    inorder_traversal(&tree, 0);
+    printf("\nКоличество элементов (size): %d\n", tree.size);
 
-    for (int i=0;i<3*(tree.size);i++) {
-        if (is_empty(&tree, i)) printf("empty ");
-        else printf("%d ", tree.data[i].value);
-    }
-    printf("size: %d \n", tree.size);
+    printf("\n=== Удаление листа 8 ===\n");
+    delete_value(&tree, 8);
+    print_tree_structure(&tree, 0, 0);
+
+    printf("\n=== Удаление узла 51 (с детьми) ===\n");
+    delete_value(&tree, 51);
+    print_tree_structure(&tree, 0, 0);
+
+    printf("\nФинальный отсортированный вывод: ");
+    inorder_traversal(&tree, 0);
+    printf("\nКоличество элементов (size): %d\n", tree.size);
 
     return 0;
 }
