@@ -3,9 +3,10 @@
 #include <limits.h>
 
 #define INF INT_MAX
+#define V 5
 
 // Функция для поиска вершины с минимальным ключом (весом) среди еще не включенных в MST
-int minKey(int V, int key[], int mstSet[]) {
+int minKey(int key[], int mstSet[]) {
     int min = INF, min_index;
 
     for (int v = 0; v < V; v++) {
@@ -18,7 +19,7 @@ int minKey(int V, int key[], int mstSet[]) {
 }
 
 // Функция для вывода построенного MST
-void printMST(int V, int parent[], int** graph) {
+void printMST(int parent[], int** graph) {
     int totalWeight = 0;
     printf("--- Алгоритм Прима ---\n");
     printf("Рёбра в составе MST:\n");
@@ -30,15 +31,15 @@ void printMST(int V, int parent[], int** graph) {
 }
 
 // Основная функция алгоритма Прима
-void primMST(int V, int** graph) {
-    int* parent = (int*)malloc(V * sizeof(int)); // Массив для хранения построенного MST
-    int* key = (int*)malloc(V * sizeof(int));    // Ключевые значения для выбора минимального ребра
-    int* mstSet = (int*)malloc(V * sizeof(int));  // 1, если вершина уже включена в MST, иначе 0
+void primMST(const int graph[V][V]) {
+    int parent[V]; // Массив для хранения построенного MST
+    int key[V];    // Ключевые значения для выбора минимального ребра
+    int visited[V];  // 1, если вершина уже включена в MST, иначе 0
 
-    // Инициализируем все ключи бесконечностью, а mstSet нулями
+    // Инициализируем все ключи бесконечностью, а visited нулями
     for (int i = 0; i < V; i++) {
         key[i] = INF;
-        mstSet[i] = 0;
+        visited[i] = 0;
     }
 
     // Всегда начинаем с 0-й вершины
@@ -48,10 +49,10 @@ void primMST(int V, int** graph) {
     // Остовное дерево будет иметь ровно V вершин
     for (int count = 0; count < V - 1; count++) {
         // Выбираем вершину с минимальным ключом из множества еще не обработанных
-        int u = minKey(V, key, mstSet);
+        int u = minKey(key, visited);
 
         // Добавляем выбранную вершину в множество MST
-        mstSet[u] = 1;
+        visited[u] = 1;
 
         // Обновляем ключи и родителей для соседних вершин выбранной вершины
         for (int v = 0; v < V; v++) {
@@ -59,29 +60,29 @@ void primMST(int V, int** graph) {
             // 1. graph[u][v] существует (не 0)
             // 2. v еще не в mstSet
             // 3. Вес ребра u-v меньше, чем текущее значение key[v]
-            if (graph[u][v] && mstSet[v] == 0 && graph[u][v] < key[v]) {
+            if (graph[u][v] && visited[v] == 0 && graph[u][v] < key[v]) {
                 parent[v] = u;
                 key[v] = graph[u][v];
             }
         }
     }
 
-    printMST(V, parent, graph);
+    printMST(parent, graph);
 
     // Освобождаем память
     free(parent);
     free(key);
-    free(mstSet);
+    free(visited);
 }
 
 int main() {
-    int V = 5;
 
     // Выделяем память под двумерную динамическую матрицу смежности
-    int** graph = (int**)malloc(V * sizeof(int*));
+    /*int** graph = (int**)malloc(V * sizeof(int*));
     for (int i = 0; i < V; i++) {
         graph[i] = (int*)calloc(V, sizeof(int)); // Инициализируем нулями
-    }
+    }*/
+    int graph[V][V] = {0};
 
     // Заполнение матрицы смежности значениями весов (0 означает отсутствие ребра)
     graph[0][1] = 2; graph[1][0] = 2; // (A, B) = 2
@@ -92,13 +93,13 @@ int main() {
     graph[2][4] = 6; graph[4][2] = 6; // (C, E) = 6
     graph[3][4] = 2; graph[4][3] = 2; // (D, E) = 2
 
-    primMST(V, graph);
+    primMST(graph);
 
     // Очистка памяти матрицы
-    for (int i = 0; i < V; i++) {
+    /*for (int i = 0; i < V; i++) {
         free(graph[i]);
     }
-    free(graph);
+    free(graph);*/
 
     return 0;
 }

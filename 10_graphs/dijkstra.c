@@ -1,113 +1,117 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <limits.h>
 
 #define INF INT_MAX
+#define V 5
+#define E 7 // Количество рёбер (для примера)
 
-// Функция для поиска необработанной вершины с минимальным расстоянием
-int minDistance(int V, int dist[], int visited[]) {
-    int min = INF, min_index = -1;
+struct Edge {
+    int src;
+    int dest;
+    int weight;
+};
 
-    for (int v = 0; v < V; v++) {
-        if (visited[v] == 0 && dist[v] <= min) {
-            min = dist[v];
-            min_index = v;
+void convertToMatrix(struct Edge edges[], int edge_count, int graph[V][V]) {
+    // 1. Инициализируем матрицу нулями (или INF, если у тебя нет путей)
+    for (int i = 0; i < V; i++) {
+        for (int j = 0; j < V; j++) {
+            graph[i][j] = 0; // В твоей реализации Дейкстры 0 означает "нет ребра"
+        }
+    }
+
+    // 2. Переносим рёбра из списка в матрицу
+    for (int i = 0; i < edge_count; i++) {
+        int u = edges[i].src;
+        int v = edges[i].dest;
+        int w = edges[i].weight;
+        
+        graph[u][v] = w; // Для ориентированного графа пишем ТОЛЬКО сюда
+        // Если бы граф был НЕориентированным, мы бы дописали: graph[v][u] = w;
+    }
+}
+
+
+int minDistance(const int res[V], const int visited[V]) {
+    //нужно вернуть индекс вершины с минимальным растоянием и непосещенную
+    //следовательно работаем с res, visited
+    int min = INF, min_index = -1, j;
+    for (j=0; j<V; j++) {
+        if (visited[j] == 0 && res[j] < min) {
+            min = res[j];
+            min_index = j;
         }
     }
     return min_index;
 }
 
-// Функция для вывода массивов расстояний и путей
-void printSolution(int V, int dist[], int parent[], int src) {
-    printf("--- Результаты алгоритма Дейкстры (Старт из %d) ---\n", src);
-    printf("Вершина \t Расстояние от источника \t Родитель\n");
-    for (int i = 0; i < V; i++) {
-        if (dist[i] == INF) {
-            printf("%d \t\t Недостижима \t\t -\n", i);
-        } else {
-            printf("%d \t\t %d \t\t\t\t %d\n", i, dist[i], parent[i]);
-        }
-    }
-}
+int dijkstra(const int arr[V][V], int res[V], int parent[V], int src) {
+    //происходит работа с тремя массивами res, visited, parent + исходная матрица смежности + нужна стартовая вершина
+    //в исходной матрице 0 если нету ребра, и вес если есть
+    int j, count;
+    int visited[V];
 
-// Основная функция алгоритма Дейкстры
-void dijkstra(int V, int** graph, int src) {
-    int* dist = (int*)malloc(V * sizeof(int));    // Выходной массив кратчайших расстояний
-    int* visited = (int*)malloc(V * sizeof(int)); // Массив флагов посещенных/обработанных вершин
-    int* parent = (int*)malloc(V * sizeof(int));  // Массив для восстановления самого пути
-
-    // Инициализация исходных массивов
-    for (int i = 0; i < V; i++) {
-        dist[i] = INF;
-        visited[i] = 0;
-        parent[i] = -1;
+    for (j=0; j<V; j++) {
+        res[j] = INF;
+        parent[j] = -1;
+        visited[j] = 0;
     }
 
-    // Расстояние от вершины до самой себя всегда равно 0
-    dist[src] = 0;
+    res[src] = 0;
 
-    // Поиск кратчайшего пути для всех V вершин
-    for (int count = 0; count < V - 1; count++) {
-        // Выбираем вершину с минимальным расстоянием из набора еще не обработанных
-        int u = minDistance(V, dist, visited);
+    for (count=0; count<V-1; count++) {
+        int min_i = minDistance(res, visited);
+        if (min_i == -1) break; //больше из стартовой вершины попасть никуда нельзя
 
-        // Если minDistance вернул -1, значит оставшиеся вершины недостижимы из src
-        if (u == -1) break;
+        visited[min_i] = 1;
 
-        // Помечаем выбранную вершину как обработанную
-        visited[u] = 1;
-
-        // Обновляем dist[v] для соседних вершин выбранной вершины `u`
-        for (int v = 0; v < V; v++) {
-            // Условия релаксации:
-            // 1. Вершина v еще не обработана (visited[v] == 0)
-            // 2. Есть ребро из u в v (graph[u][v] != 0)
-            // 3. Путь до u в принципе существует (dist[u] != INF)
-            // 4. Суммарный вес пути через u меньше текущего значения dist[v]
-            if (!visited[v] && graph[u][v] && dist[u] != INF && dist[u] + graph[u][v] < dist[v]) {
-                dist[v] = dist[u] + graph[u][v];
-                parent[v] = u; // Запоминаем, что в v мы пришли из u
+        for (j=0; j<V; j++) {
+            if (visited[j] == 0 && arr[min_i][j] != 0 && res[min_i] + arr[min_i][j] < res[j]) {
+                res[j] = res[min_i] + arr[min_i][j];
+                parent[j] = min_i;
             }
         }
     }
 
-    printSolution(V, dist, parent, src);
-
-    // Освобождение динамической памяти
-    free(dist);
-    free(visited);
-    free(parent);
+    return 0;
 }
 
 int main() {
-    int V = 5;
+    int graph[V][V] = {0};
+    graph[0][1] = 5;   // 0 -> 1 вес 5
+    graph[0][3] = 10;  // 0 -> 3 вес 10
+    graph[1][2] = 3;   // 1 -> 2 вес 3
+    graph[2][3] = 1;   // 2 -> 3 вес 1
 
-    // Выделяем память под двумерную матрицу смежности графа
-    int** graph = (int**)malloc(V * sizeof(int*));
+    struct Edge edges[E] = {
+        {0, 1, 5}, {0, 3, 10}, {1, 2, 3}, {2, 3, 1}
+    };
+
+    convertToMatrix(edges, 4, graph); //
+
+    int res[V], parent[V];
+    int src = 0;
+
+    dijkstra(graph, res, parent, src);
+
+    printf("--- Результаты алгоритма Дейкстры (Старт из %d) ---\n", src);
+    printf("Вершина \t Расстояние от источника \t Родитель\n");
     for (int i = 0; i < V; i++) {
-        graph[i] = (int*)calloc(V, sizeof(int));
+        if (res[i] == INF) {
+            printf("%d \t\t Недостижима \t\t -\n", i);
+        } else {
+            printf("%d \t\t %d \t\t\t\t %d\n", i, res[i], parent[i]);
+        }
     }
-
-    // Заполнение графа (тот же тестовый набор весов рёбер)
-    graph[0][1] = 2; graph[1][0] = 2;
-    graph[0][2] = 3; graph[2][0] = 3;
-    graph[1][2] = 1; graph[2][1] = 1;
-    graph[1][3] = 4; graph[3][1] = 4;
-    graph[2][3] = 5; graph[3][2] = 5;
-    graph[2][4] = 6; graph[4][2] = 6;
-    graph[3][4] = 2; graph[4][3] = 2;
-
-    // Запуск алгоритма из стартовой вершины 0 (A)
-    dijkstra(V, graph, 0);
-
-    // Освобождение памяти матрицы
-    for (int i = 0; i < V; i++) {
-        free(graph[i]);
-    }
-    free(graph);
-
-    return 0;
 }
+
+/*
+Вершина          Расстояние от источника         Родитель
+0                0                               -1
+1                5                               0
+2                8                               1
+3                9                               2
+4                Недостижима             -
+*/
 
 /*
 gcc dijkstra.c -o dijkstra

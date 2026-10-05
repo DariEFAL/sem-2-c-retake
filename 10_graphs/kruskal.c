@@ -6,7 +6,7 @@ typedef struct {
     int src, dest, weight;
 } Edge;
 
-// Структура для подмножеств в СНМ (Disjoint Set Union)
+// Структура для подмножеств в DSU (Disjoint Set Union)
 typedef struct {
     int parent;
     int rank;
@@ -57,7 +57,7 @@ void kruskalMST(int V, int E, Edge edges[]) {
     // Шаг 1: Сортируем все рёбра графа по возрастанию веса O(E log E)
     qsort(edges, E, sizeof(Edge), compareEdges);
 
-    // Выделяем память для СНМ
+    // Выделяем память для DSU
     Subset* subsets = (Subset*)malloc(V * sizeof(Subset));
     for (int v = 0; v < V; ++v) {
         subsets[v].parent = v;

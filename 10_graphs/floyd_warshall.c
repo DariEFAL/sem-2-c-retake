@@ -1,112 +1,65 @@
 #include <stdio.h>
-#include <stdlib.h>
 
-// Используем достаточно большое число для бесконечности, 
-// но такое, чтобы при сложении INF + INF не произошло переполнение (overflow)
-#define INF 1e7 
+#define INF 10000000
+#define V 5
 
-// Функция для вывода матрицы расстояний
-void printMatrix(int V, int** dist) {
-    printf("--- Матрица кратчайших расстояний между всеми парами ---\n");
-    for (int i = 0; i < V; i++) {
-        for (int j = 0; j < V; j++) {
-            if (dist[i][j] == INF) {
-                printf("%7s", "INF");
-            } else {
-                printf("%7d", dist[i][j]);
-            }
-        }
-        printf("\n");
-    }
-}
+int floydWarshall(const int arr[V][V], int res[V][V]) {
+    int i, j, k;
 
-// Основная функция алгоритма Флойда-Уоршела
-void floydWarshall(int V, int** graph) {
-    // Создаем матрицу расстояний dist и инициализируем её исходными значениями графа
-    int** dist = (int**)malloc(V * sizeof(int*));
-    for (int i = 0; i < V; i++) {
-        dist[i] = (int*)malloc(V * sizeof(int));
-        for (int j = 0; j < V; j++) {
-            dist[i][j] = graph[i][j];
+    for (i=0; i < V; i++) {
+        for (j=0; j<V; j++) {
+            res[i][j] = arr[i][j];
         }
     }
 
-    // Главный цикл: k - промежуточная вершина (город пересадки)
-    for (int k = 0; k < V; k++) {
-        // i - стартовая вершина
-        for (int i = 0; i < V; i++) {
-            // j - конечная вершина
-            for (int j = 0; j < V; j++) {
-                // Если путь через вершину k существует и он короче прямого пути
-                if (dist[i][k] < INF && dist[k][j] < INF) {
-                    if (dist[i][k] + dist[k][j] < dist[i][j]) {
-                        dist[i][j] = dist[i][k] + dist[k][j];
+    for (k=0; k<V; k++) {
+        for (i=0; i<V; i++) {
+            for (j=0; j<V; j++) {
+                if (res[i][k] != INF && res[k][j] != INF) {
+                    if (res[i][k] + res[k][j] < res[i][j]) {
+                        res[i][j] = res[i][k] + res[k][j];
                     }
                 }
             }
         }
     }
 
-    // Проверка на наличие отрицательных циклов
-    // Если расстояние от вершины до самой себя стало меньше 0, в графе есть отрицательный цикл
-    //После выполнения алгоритма отрицательный цикл можно заметить по диагонали: если для некоторой вершины d[i][i] < 0, 
-    //то существует отрицательный цикл, достижимый из этой вершины.
-    for (int i = 0; i < V; i++) {
-        if (dist[i][i] < 0) {
-            printf("Внимание: в графе обнаружен цикл с отрицательным весом!\n");
-            break;
-        }
+    //проверка что нету отрицательного цикла
+    for (i=0; i<V; i++) {
+        if (res[i][i] < 0) return -1;
     }
 
-    printMatrix(V, dist);
-
-    // Освобождаем память матрицы dist
-    for (int i = 0; i < V; i++) {
-        free(dist[i]);
-    }
-    free(dist);
+    return 0;
 }
 
 int main() {
-    int V = 4; // Пример для 4 вершин (0, 1, 2, 3)
-
-    // Выделяем память под исходный граф (матрицу смежности)
-    int** graph = (int**)malloc(V * sizeof(int*));
-    for (int i = 0; i < V; i++) {
-        graph[i] = (int*)malloc(V * sizeof(int));
-    }
-
-    // Инициализируем базовый граф
-    // По диагонали 0, между остальными - INF (если нет ребра)
-    for (int i = 0; i < V; i++) {
-        for (int j = 0; j < V; j++) {
-            if (i == j) graph[i][j] = 0;
-            else graph[i][j] = INF;
-        }
-    }
-
-    // Заполняем веса рёбер (граф ориентированный для демонстрации универсальности)
+    int graph[V][V] = {0};
     graph[0][1] = 5;   // 0 -> 1 вес 5
     graph[0][3] = 10;  // 0 -> 3 вес 10
     graph[1][2] = 3;   // 1 -> 2 вес 3
     graph[2][3] = 1;   // 2 -> 3 вес 1
 
-    floydWarshall(V, graph);
-
-    // Освобождаем память исходного графа
-    for (int i = 0; i < V; i++) {
-        free(graph[i]);
+    for (int i=0; i<V; i++) {
+        for (int j=0; j<V; j++) {
+            if (i!=j && graph[i][j] == 0) graph[i][j] = INF;  
+        }
     }
-    free(graph);
 
+    int res[V][V];
+    if (floydWarshall(graph, res) != 0) {
+        printf("-1");
+        return -1;
+    }
+    printf("--- Матрица кратчайших расстояний между всеми парами ---\n");
+    for (int i = 0; i < V; i++) {
+        for (int j = 0; j < V; j++) {
+            if (res[i][j] == INF) {
+                printf("%7s", "INF");
+            } else {
+                printf("%7d", res[i][j]);
+            }
+        }
+        printf("\n");
+    }
     return 0;
 }
-/*
-gcc floyd_warshall.c -o floyd_warshall
-./floyd_warshall
-*/
-
-/*
-В отличие от Дейкстры, алгоритм может работать с отрицательными рёбрами, 
-но не должен быть отрицательных циклов, влияющих на ответ.
-*/
